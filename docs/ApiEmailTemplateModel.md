@@ -1,0 +1,28 @@
+# Iterable::ApiEmailTemplateModel
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**template_id** | **Integer** | Email Template ID | 
+**metadata** | [**ApiTemplateResponse**](ApiTemplateResponse.md) |  | [optional] 
+**name** | **String** | Name of the template | [optional] 
+**from_name** | **String** | From name | [optional] 
+**from_email** | **String** | From email (must be an authorized sender) | [optional] 
+**reply_to_email** | **String** | Reply to email | [optional] 
+**subject** | **String** | Subject | [optional] 
+**preheader_text** | **String** | Preheader text | [optional] 
+**cc_emails** | **Array&lt;String&gt;** | CC emails | [optional] 
+**bcc_emails** | **Array&lt;String&gt;** | BCC emails | [optional] 
+**html** | **String** | HTML contents | [optional] 
+**plain_text** | **String** | Plain text contents | [optional] 
+**google_analytics_campaign_name** | **String** | Google analytics utm_campaign value | [optional] 
+**link_params** | [**Array&lt;LinkParam&gt;**](LinkParam.md) | Parameters to append to each URL in html contents | [optional] 
+**data_feed_id** | [**BigDecimal**](BigDecimal.md) | [Deprecated - use dataFeedIds instead] Id for data feed used in template rendering | [optional] 
+**data_feed_ids** | [**Array&lt;BigDecimal&gt;**](BigDecimal.md) | Ids for data feeds used in template rendering | [optional] 
+**cache_data_feed** | **Object** | Cache data feed lookups for 1 hour | [optional] 
+**merge_data_feed_context** | **Object** | Merge data feed contents into user context, so fields be referenced by {{field}} instead of [[field]] | [optional] 
+**client_template_id** | **String** | Client template Id. Used as a secondary key to reference the template | [optional] 
+**locale** | **String** | The locale for the content in this request. Leave empty for default locale. Iterable will automatically send the content with locale that matches a &#x27;locale&#x27; field in the user profile. | [optional] 
+**message_type_id** | [**BigDecimal**](BigDecimal.md) | Message Type Id | [optional] 
+**creator_user_id** | **String** | Creator User Id | [optional] 
+
