@@ -12,10 +12,10 @@ Method | HTTP request | Description
 [**export_project_forgotten_users**](UsersApi.md#export_project_forgotten_users) | **GET** /api/users/forgotten | Get hashed forgotten users in compliance with GDPR
 [**forget**](UsersApi.md#forget) | **POST** /api/users/forget | Forget a user in compliance with GDPR
 [**get_sent_messages**](UsersApi.md#get_sent_messages) | **GET** /api/users/getSentMessages | Get messages sent to a user
-[**get_user**](UsersApi.md#get_user) | **GET** /api/users/getByEmail | Get a user by email
-[**get_user_0**](UsersApi.md#get_user_0) | **GET** /api/users/{email} | Get a user by email
-[**get_user_by_id**](UsersApi.md#get_user_by_id) | **GET** /api/users/byUserId | Get a user by userId
-[**get_user_by_id_0**](UsersApi.md#get_user_by_id_0) | **GET** /api/users/byUserId/{userId} | Get a user by userId
+[**get_user**](UsersApi.md#get_user) | **GET** /api/users/{email} | Get a user by email (path parameter)
+[**get_user_0**](UsersApi.md#get_user_0) | **GET** /api/users/getByEmail | Get a user by email (query parameter)
+[**get_user_by_id**](UsersApi.md#get_user_by_id) | **GET** /api/users/byUserId | Get a user by userId (query parameter)
+[**get_user_by_id_0**](UsersApi.md#get_user_by_id_0) | **GET** /api/users/byUserId/{userId} | Get a user by userId (path parameter)
 [**get_user_fields**](UsersApi.md#get_user_fields) | **GET** /api/users/getFields | Get all user fields
 [**invalidate_jwt**](UsersApi.md#invalidate_jwt) | **POST** /api/auth/jwts/invalidate | Invalidate all JWTs issued for a user
 [**register_browser_token**](UsersApi.md#register_browser_token) | **POST** /api/users/registerBrowserToken | Register a browser token for web push
@@ -83,7 +83,7 @@ Name | Type | Description  | Notes
 
 Bulk update user data
 
-Bulk update user data. This will add the data if it doesn't exist yet. Data will be merged; missing fields are not deleted. Changing emailListIds, unsubscribedChannelIds, messageTypeIds through this endpoint will <b>NOT</b> generate unsubscribe events. However, the bulkUpdateSubscription will generate unsubscribe events. Also, note that there is a soft limit on the number of unique fields a user can have (default is 1,000). Types of data fields must match the types sent in previous requests, across all data fields in the project.<br>Note that bulk updates are processed separately from single-user calls (update, updateEmail, updateSubscriptions, etc). If the same user is modified using both bulk update and single-user calls made near the same time, the results may be inconsistent. It's important to use either only single-user calls or only bulk update calls around the same time for any given user.<br><b>Rate limit</b>: 5 requests/second, per project.
+Bulk update user data. This endpoint adds and overwrites user profile fields as needed. It does not modify top-level fields omitted from the request body. <br><br>If you'd like to merge (rather than overwrite) a user profile's top-level objects with the values provided for them in the request body, set <code>mergeNestedObjects</code> to <code>true</code>.<br><br>When updating an existing field, you cannot change its data type (the new value must have the same data type as the old value).<br><br>When adding a new field, remember that each project has a soft limit of 1,000 unique user profile fields (across all its users, with a field's uniqueness determined by its name and position on the user profile). <br><br>Iterable handles requests to this endpoint separately from requests to single-user endpoints (<code>update</code>, <code>updateEmail</code>, <code>updateSubscriptions</code>, etc.). For a given user, in a short period of time, only use single-user calls or bulk update calls. Otherwise, results may be inconsistent.<br><br>When updating the <code>emailListIds</code> field, this endpoint does not generate subscribe or unsubscribe events. The same is true for updates to <code>unsubscribedChannelIds</code> and <code>unsubscribedMessageTypeIds</code> (but these can only be updated by this endpoint in projects where the opt-in message types feature is not enabled).<br><br><b>Max size of request body</b>: 4MB<br><b>Rate limit</b>: 5 requests/second, per project
 
 ### Example
 ```ruby
@@ -461,65 +461,11 @@ Name | Type | Description  | Notes
 
 
 # **get_user**
-> UserResponse get_user(opts)
+> UserResponse get_user(email)
 
-Get a user by email
+Get a user by email (path parameter)
 
-<b>Rate limit</b>: 3 requests/second, per project.
-
-### Example
-```ruby
-# load the gem
-require 'iterable'
-# setup authorization
-Iterable.configure do |config|
-  # Configure API key authorization: api_key
-  config.api_key['Api-Key'] = 'YOUR API KEY'
-  # Uncomment the following line to set a prefix for the API key, e.g. 'Bearer' (defaults to nil)
-  #config.api_key_prefix['Api-Key'] = 'Bearer'
-end
-
-api_instance = Iterable::UsersApi.new
-opts = { 
-  email: 'email_example' # String | 
-}
-
-begin
-  #Get a user by email
-  result = api_instance.get_user(opts)
-  p result
-rescue Iterable::ApiError => e
-  puts "Exception when calling UsersApi->get_user: #{e}"
-end
-```
-
-### Parameters
-
-Name | Type | Description  | Notes
-------------- | ------------- | ------------- | -------------
- **email** | **String**|  | [optional] 
-
-### Return type
-
-[**UserResponse**](UserResponse.md)
-
-### Authorization
-
-[api_key](../README.md#api_key)
-
-### HTTP request headers
-
- - **Content-Type**: Not defined
- - **Accept**: */*
-
-
-
-# **get_user_0**
-> UserResponse get_user_0(email)
-
-Get a user by email
-
-Get a user by their email address.<br><b>Note</b>: If the email address contains non-alphanumeric characters, please use the <a href=\"https://api.iterable.com/api/docs#users_getUser_0\"><tt>GET /api/users/getByEmail</tt></a> endpoint instead.<br><b>Rate limit</b>: 3 requests/second, per project.
+Get a user by email address (passed as a path parameter).<br><br>If the email address contains non-alphanumeric characters, use <a href=\"#users_getUser_0\"><tt>GET /api/users/getByEmail</tt></a> instead.<br><br><b>Rate limit</b>: 3 requests/second, per project.
 
 ### Example
 ```ruby
@@ -538,11 +484,11 @@ email = 'email_example' # String | email
 
 
 begin
-  #Get a user by email
-  result = api_instance.get_user_0(email)
+  #Get a user by email (path parameter)
+  result = api_instance.get_user(email)
   p result
 rescue Iterable::ApiError => e
-  puts "Exception when calling UsersApi->get_user_0: #{e}"
+  puts "Exception when calling UsersApi->get_user: #{e}"
 end
 ```
 
@@ -567,12 +513,66 @@ Name | Type | Description  | Notes
 
 
 
+# **get_user_0**
+> UserResponse get_user_0(opts)
+
+Get a user by email (query parameter)
+
+Get a user by email address (passed as a query parameter).<br><br>Returns the same data as <a href=\"#users_getUser\"><tt>GET /api/users/{email}</tt></a>, but supports email addresses that contain non-alphanumeric characters (which should be URL-encoded before being passed to this endpoint).<br><br><b>Rate limit</b>: 3 requests/second, per project.
+
+### Example
+```ruby
+# load the gem
+require 'iterable'
+# setup authorization
+Iterable.configure do |config|
+  # Configure API key authorization: api_key
+  config.api_key['Api-Key'] = 'YOUR API KEY'
+  # Uncomment the following line to set a prefix for the API key, e.g. 'Bearer' (defaults to nil)
+  #config.api_key_prefix['Api-Key'] = 'Bearer'
+end
+
+api_instance = Iterable::UsersApi.new
+opts = { 
+  email: 'email_example' # String | 
+}
+
+begin
+  #Get a user by email (query parameter)
+  result = api_instance.get_user_0(opts)
+  p result
+rescue Iterable::ApiError => e
+  puts "Exception when calling UsersApi->get_user_0: #{e}"
+end
+```
+
+### Parameters
+
+Name | Type | Description  | Notes
+------------- | ------------- | ------------- | -------------
+ **email** | **String**|  | [optional] 
+
+### Return type
+
+[**UserResponse**](UserResponse.md)
+
+### Authorization
+
+[api_key](../README.md#api_key)
+
+### HTTP request headers
+
+ - **Content-Type**: Not defined
+ - **Accept**: */*
+
+
+
 # **get_user_by_id**
 > UserResponse get_user_by_id(opts)
 
-Get a user by userId
+Get a user by userId (query parameter)
 
-<b>Rate limit</b>: 3 requests/second, per project.
+Get a user by userId (passed as a query parameter).<br><br>Returns the same data as <a href=\"#users_getUserById_0\"><tt>GET /api/users/byUserId/{userId}</tt></a>, but supports userId values that contain non-alphanumeric characters (which should be URL-encoded before being passed to this endpoint).<br><br><b>Rate limit</b>: 3 requests/second, per project.
 
 ### Example
 ```ruby
@@ -592,7 +592,7 @@ opts = {
 }
 
 begin
-  #Get a user by userId
+  #Get a user by userId (query parameter)
   result = api_instance.get_user_by_id(opts)
   p result
 rescue Iterable::ApiError => e
@@ -624,9 +624,9 @@ Name | Type | Description  | Notes
 # **get_user_by_id_0**
 > UserResponse get_user_by_id_0(user_id)
 
-Get a user by userId
+Get a user by userId (path parameter)
 
-Get a user by your custom userId. <b>Rate limit</b>: 3 requests/second, per project.
+Get a user by userId (passed as a path parameter).<br><br>If the userId contains non-alphanumeric characters, use <a href=\"#users_getUserById\"><tt>GET /api/users/byUserId</tt></a> instead.<br><br><b>Rate limit</b>: 3 requests/second, per project.
 
 ### Example
 ```ruby
@@ -645,7 +645,7 @@ user_id = 'user_id_example' # String | userId
 
 
 begin
-  #Get a user by userId
+  #Get a user by userId (path parameter)
   result = api_instance.get_user_by_id_0(user_id)
   p result
 rescue Iterable::ApiError => e

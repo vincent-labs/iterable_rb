@@ -1,0 +1,9 @@
+Original openapi spec file from: https://api.iterable.com/api-docs
+
+added consumes and produces to api-docs override defaults
+added a mustache template to fix problems with is_a?(String)
+
+Generated using:
+
+java -jar ../swagger-codegen-cli.jar generate -l ruby -i iterable-api-docs.json -c config.json -t ./src/main/resources/ruby
+
